@@ -7,7 +7,13 @@ server.on('error', (err) => {
 });
 
 server.on('message', (msg, rinfo) => {
-  //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  console.log(msg.length);
+  var s = Buffer.from(msg.toString('hex').replace(/cc/g, '').replace(/00/, ''), 'hex').toString();
+  console.log(`server got: ${s} from ${rinfo.address}:${rinfo.port}`);
+  var obj = JSON.parse(s);
+  if (obj.msgType == 'connect') {
+    console.log('got "connect"');
+  }
   server.send([Buffer.from('{"msgType":"connect","seq":1}')],rinfo.port, rinfo.address, (err) => {
       console.log(`to: ${rinfo.address}:${rinfo.port}`);
   });
