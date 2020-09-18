@@ -9,7 +9,7 @@ server.on('error', (err) => {
 server.on('message', (msg, rinfo) => {
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
   server.send([Buffer.from('repl: ' + msg)],rinfo.port, rinfo.address, (err) => {
-      console.log(`err: ${err}`);
+      console.log(`to: ${rinfo.address}:${rinfo.port}`);
   });
 });
 
