@@ -75,6 +75,21 @@ server.on('message', (msg, rinfo) => {
 server.on('listening', () => {
   const address = server.address();
   console.log(`server listening ${address.address}:${address.port}`);
+  var seq = 0;
+  // start pinging clients:
+  setInterval(function() {
+    redis.get('udp-clients', function(err, clients) {
+      if (clients) {
+        var cli = JSON.parse(clients);
+        for (var i = 0; i < cli.length; i++) {
+          var ping = {msgType:'ping',seq:seq++};
+          server.send([Buffer.from(JSON.stringify(ping))],cli[i].port, cli[i].host, (err) => {
+            console.log(`sent ping ${seq} to: ${cli[i].host}:${cli[i].port}`);
+          });
+        }
+      }
+    });
+  }, 3000);
 });
 
 server.on('close', () => {
