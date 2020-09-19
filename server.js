@@ -20,16 +20,17 @@ server.on('error', (err) => {
 });
 
 server.on('message', (msg, rinfo) => {
-  var s = Buffer.from(msg.toString('hex'));
-  console.log(s);
-  var sz = s.indexOf('cc');
-  console.log(sz);
-  var hex = s.slice(0, sz);
-  console.log(hex);
-  s = Buffer.from(hex, 'hex').toString();
-  //var s = Buffer.from(msg.toString('hex').replace(/cc/g, '').replace(/00/, ''), 'hex').toString();
-  console.log(`server got: ${s} from ${rinfo.address}:${rinfo.port}`);
-  var obj = JSON.parse(s);
+  var sz = 0;
+  for (var i = 0; i < msg.length; i++) {
+    if (msg[i] == 0) {
+      sz = i;
+      break;
+    }
+  }
+  console.log(`sz: ${sz}`);
+  var hex = msg.toString().slice(0, sz);
+  console.log(`got: ${hex} from ${rinfo.address}:${rinfo.port}`);
+  var obj = JSON.parse(hex);
   if (obj.msgType == 'connect') {
     console.log('connect');
     redis.get('udp-clients', function(err, clients) {
