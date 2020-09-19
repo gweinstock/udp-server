@@ -42,13 +42,33 @@ server.on('message', (msg, rinfo) => {
         cli = [{id:idSeq,host:rinfo.address,port:rinfo.port}];
       }
       idSeq++;
+      console.log(`udp-clients: ${JSON.stringify(cli)}`);
       redis.set('udp-clients', JSON.stringify(cli));
     });
     server.send([Buffer.from('{"msgType":"connect","id":' + idSeq + '}')],rinfo.port, rinfo.address, (err) => {
       console.log(`sent connect to: ${rinfo.address}:${rinfo.port}`);
     });
-  } else {
-    console.log('unknown command');
+  } else if (obj.msgType == 'disconnect') {
+    var idSeq = obj.id;
+    console.log(`disconnect: ${idSeq}`);
+    redis.get('udp-clients', function(err, clients) {
+      if (clients) {
+        var idx = 0;
+        var cli = JSON.parse(clients);
+        for (var i = 0; i < cli.length; i++) {
+          if (cli.id == idSeq) {
+            // splice out of array:
+            idx = i;
+            break;
+          }
+        }
+        cli.splice(idx, 1);
+        console.log(`udp-clients: ${JSON.stringify(cli)}`);
+        redis.set('udp-clients', JSON.stringify(cli));
+      } else {
+        // no clients connected
+      }
+    });
   }
 });
 
