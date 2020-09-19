@@ -20,7 +20,14 @@ server.on('error', (err) => {
 });
 
 server.on('message', (msg, rinfo) => {
-  var s = Buffer.from(msg.toString('hex').replace(/cc/g, '').replace(/00/, ''), 'hex').toString();
+  var s = Buffer.from(msg.toString('hex'));
+  console.log(s);
+  var sz = s.indexOf('cc');
+  console.log(sz);
+  var hex = s.slice(0, sz);
+  console.log(hex);
+  s = Buffer.from(hex, 'hex').toString();
+  //var s = Buffer.from(msg.toString('hex').replace(/cc/g, '').replace(/00/, ''), 'hex').toString();
   console.log(`server got: ${s} from ${rinfo.address}:${rinfo.port}`);
   var obj = JSON.parse(s);
   if (obj.msgType == 'connect') {
