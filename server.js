@@ -55,18 +55,20 @@ server.on('message', (msg, rinfo) => {
     console.log(`disconnect: ${idSeq}`);
     redis.get('udp-clients', function(err, clients) {
       if (clients) {
-        var idx = 0;
+        var idx = -1;
         var cli = JSON.parse(clients);
         for (var i = 0; i < cli.length; i++) {
-          if (cli.id == idSeq) {
+          if (cli[i].id == idSeq) {
             // splice out of array:
             idx = i;
             break;
           }
         }
-        cli.splice(idx, 1);
-        console.log(`udp-clients: ${JSON.stringify(cli)}`);
-        redis.set('udp-clients', JSON.stringify(cli));
+        if (idx != -1) {
+          cli.splice(idx, 1);
+          console.log(`udp-clients: ${JSON.stringify(cli)}`);
+          redis.set('udp-clients', JSON.stringify(cli));
+        }
       } else {
         // no clients connected
       }
@@ -84,11 +86,12 @@ server.on('listening', () => {
       if (clients) {
         var cli = JSON.parse(clients);
         for (var i = 0; i < cli.length; i++) {
-          var ping = {msgType:'ping',seq:seq++};
+          var ping = {msgType:'ping',seq:seq};
           console.log(`cli[${i}]: ${JSON.stringify(cli[i])}: ${seq}`);
           server.send([Buffer.from(JSON.stringify(ping))],cli[i].port, cli[i].host, (err) => {
           });
         }
+        seq++;
       }
     });
   }, 3000);
