@@ -73,6 +73,17 @@ server.on('message', (msg, rinfo) => {
         // no clients connected
       }
     });
+  } else if (obj.msgType == 'hello') {
+    redis.get('udp-clients', function(err, clients) {
+      if (clients) {
+        var cli = JSON.parse(clients);
+        for (var i = 0; i < cli.length; i++) {
+          var hello = {msgType:'hello',name:obj.name};
+          server.send([Buffer.from(JSON.stringify(hello))],cli[i].port, cli[i].host, (err) => {
+          });
+        }
+      }
+    });
   }
 });
 
