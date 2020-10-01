@@ -10,7 +10,7 @@ var ids = { id: 1 };
 
 fs.readFile('redis-cfg.json', 'utf8', function(err, data) {
   var servers = JSON.parse(data.toString()).cache_servers;
-  redis = new ioredis.Cluster(servers, { redisOptions: { password: '153aaa4ff88b9e54925777480b14652ed9822baf4363b1f35114f7c0d09a54c7' } });
+  redis = new ioredis.Cluster(servers, {});
 });
 
 server.on('error', (err) => {
